@@ -1,0 +1,609 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+  .crm { padding: 1rem 0; }
+  .nav { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .nav-btn { font-size: 12px; padding: 6px 14px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: transparent; color: var(--color-text-secondary); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+  .nav-btn:hover { background: var(--color-background-secondary); color: var(--color-text-primary); }
+  .nav-btn.active { background: #185FA5; border-color: #185FA5; color: #E6F1FB; }
+  .section { display: none; }
+  .section.active { display: block; }
+  h1 { font-size: 20px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  h2 { font-size: 16px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 12px; }
+  h3 { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; }
+  .subtitle { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 1.5rem; }
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+  .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+  .metric-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem; }
+  .metric-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; }
+  .metric-value { font-size: 24px; font-weight: 500; color: var(--color-text-primary); }
+  .metric-sub { font-size: 11px; color: var(--color-text-tertiary); margin-top: 4px; }
+  .metric-up { color: #3B6D11; font-size: 11px; }
+  .metric-down { color: #A32D2D; font-size: 11px; }
+  .card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1rem; }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .badge { font-size: 11px; padding: 3px 10px; border-radius: var(--border-radius-md); font-weight: 500; }
+  .badge-blue { background: #E6F1FB; color: #0C447C; }
+  .badge-green { background: #EAF3DE; color: #27500A; }
+  .badge-amber { background: #FAEEDA; color: #633806; }
+  .badge-red { background: #FCEBEB; color: #791F1F; }
+  .badge-purple { background: #EEEDFE; color: #3C3489; }
+  .badge-gray { background: #F1EFE8; color: #444441; }
+  .badge-teal { background: #E1F5EE; color: #085041; }
+  .pipeline { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-bottom: 1.5rem; }
+  .stage { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 10px; }
+  .stage-header { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .stage-count { font-size: 20px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .lead-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 8px 10px; margin-bottom: 6px; font-size: 12px; }
+  .lead-name { font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px; }
+  .lead-info { color: var(--color-text-secondary); font-size: 11px; }
+  .divider { border: none; border-top: 0.5px solid var(--color-border-tertiary); margin: 1.25rem 0; }
+  .row { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
+  .tag { font-size: 11px; padding: 2px 8px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); color: var(--color-text-secondary); display: inline-block; margin: 2px; }
+  .step { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 12px; padding: 10px 12px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); }
+  .step-num { width: 22px; height: 22px; border-radius: 50%; background: #185FA5; color: #E6F1FB; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; flex-shrink: 0; }
+  .step-content { flex: 1; }
+  .step-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 3px; }
+  .step-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+  .script-box { background: var(--color-background-secondary); border-left: 3px solid #185FA5; border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; padding: 12px 14px; margin-bottom: 1rem; font-size: 13px; color: var(--color-text-primary); line-height: 1.6; }
+  .script-label { font-size: 11px; font-weight: 500; color: #185FA5; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .warn-box { background: #FAEEDA; border-radius: var(--border-radius-md); padding: 10px 14px; font-size: 12px; color: #633806; margin-bottom: 10px; }
+  .warn-box strong { color: #412402; }
+  .tip-box { background: #E1F5EE; border-radius: var(--border-radius-md); padding: 10px 14px; font-size: 12px; color: #085041; margin-bottom: 10px; }
+  .table-wrap { overflow-x: auto; margin-bottom: 1.5rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-size: 11px; font-weight: 500; color: var(--color-text-secondary); padding: 8px 12px; border-bottom: 0.5px solid var(--color-border-tertiary); text-transform: uppercase; letter-spacing: 0.3px; }
+  td { padding: 8px 12px; border-bottom: 0.5px solid var(--color-border-tertiary); color: var(--color-text-primary); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 1rem; }
+  .kpi-card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 12px 14px; }
+  .kpi-name { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; }
+  .kpi-val { font-size: 20px; font-weight: 500; color: var(--color-text-primary); }
+  .kpi-target { font-size: 11px; color: var(--color-text-tertiary); margin-top: 3px; }
+  .notion-page { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: var(--border-radius-md); cursor: pointer; font-size: 13px; color: var(--color-text-primary); margin-bottom: 2px; }
+  .notion-page:hover { background: var(--color-background-secondary); }
+  .notion-icon { font-size: 14px; width: 20px; text-align: center; }
+  .notion-children { margin-left: 28px; border-left: 1px solid var(--color-border-tertiary); padding-left: 8px; }
+  .follow-col { flex: 1; min-width: 0; }
+  .follow-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .follow-card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 12px; }
+  .follow-header { font-size: 13px; font-weight: 500; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .msg { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px; font-size: 12px; color: var(--color-text-primary); margin-bottom: 8px; line-height: 1.5; }
+  .msg-day { font-size: 11px; color: var(--color-text-tertiary); margin-bottom: 4px; }
+  .upsell-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  @media (max-width: 500px) {
+    .follow-cols { grid-template-columns: 1fr; }
+    .upsell-grid { grid-template-columns: 1fr; }
+    .pipeline { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+
+<div class="crm">
+  <div style="margin-bottom: 1.25rem;">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+      <div style="width:32px;height:32px;background:#185FA5;border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center;">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" stroke="#E6F1FB" stroke-width="1.5"/><path d="M8 21h8M12 17v4" stroke="#E6F1FB" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <div style="font-size:16px;font-weight:500;color:var(--color-text-primary);">CRM — Produtora Audiovisual</div>
+        <div style="font-size:12px;color:var(--color-text-secondary);">Sistema operacional de vendas</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav" id="nav">
+    <button class="nav-btn active" onclick="showSection('dashboard')">Dashboard</button>
+    <button class="nav-btn" onclick="showSection('pipeline')">Pipeline</button>
+    <button class="nav-btn" onclick="showSection('leads-db')">Banco de Leads</button>
+    <button class="nav-btn" onclick="showSection('playbook')">Playbook</button>
+    <button class="nav-btn" onclick="showSection('followup')">Follow-up</button>
+    <button class="nav-btn" onclick="showSection('clientes')">Clientes Ativos</button>
+    <button class="nav-btn" onclick="showSection('escala')">Escala</button>
+    <button class="nav-btn" onclick="showSection('kpis')">KPIs</button>
+    <button class="nav-btn" onclick="showSection('notion')">Notion</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="section active" id="dashboard">
+    <h1>Dashboard</h1>
+    <p class="subtitle">Visão geral do dia — atualizar toda segunda-feira</p>
+    <div class="grid-4">
+      <div class="metric-card"><div class="metric-label">Leads ativos</div><div class="metric-value">24</div><div class="metric-sub metric-up">↑ 4 vs semana passada</div></div>
+      <div class="metric-card"><div class="metric-label">Em negociação</div><div class="metric-value">8</div><div class="metric-sub">3 quentes</div></div>
+      <div class="metric-card"><div class="metric-label">Follow-ups hoje</div><div class="metric-value">5</div><div class="metric-sub metric-down">2 atrasados</div></div>
+      <div class="metric-card"><div class="metric-label">Fechamentos/mês</div><div class="metric-value">R$14k</div><div class="metric-sub metric-up">↑ vs meta R$12k</div></div>
+    </div>
+
+    <div class="grid-4">
+      <div class="metric-card"><div class="metric-label">Taxa conversão</div><div class="metric-value">28%</div><div class="metric-sub">Meta: 30%</div></div>
+      <div class="metric-card"><div class="metric-label">Ticket médio</div><div class="metric-value">R$1.8k</div><div class="metric-sub">Recorrente: R$3.2k</div></div>
+      <div class="metric-card"><div class="metric-label">Clientes recorrentes</div><div class="metric-value">7</div><div class="metric-sub">Meta: 10</div></div>
+      <div class="metric-card"><div class="metric-label">Ciclo médio</div><div class="metric-value">11 dias</div><div class="metric-sub">Pontual: 4 dias</div></div>
+    </div>
+
+    <div class="pipeline">
+      <div class="stage"><div class="stage-header">Prospecção</div><div class="stage-count">9</div><div class="lead-card"><div class="lead-name">Restaurante Dom</div><div class="lead-info">Instagram · Gastronomia</div></div><div class="lead-card"><div class="lead-name">Clínica Vida+</div><div class="lead-info">Indicação · Institucional</div></div></div>
+      <div class="stage"><div class="stage-header">Qualificação</div><div class="stage-count">6</div><div class="lead-card"><div class="lead-name">Imob. Souza</div><div class="lead-info">SDR · Mobile Pro</div></div></div>
+      <div class="stage"><div class="stage-header">Diagnóstico</div><div class="stage-count">4</div><div class="lead-card"><div class="lead-name">Academia FitLife</div><div class="lead-info">Potencial recorrente</div></div></div>
+      <div class="stage"><div class="stage-header">Proposta</div><div class="stage-count">3</div><div class="lead-card"><div class="lead-name">Loja ModaUp</div><div class="lead-info">Recorrente · Quente</div></div></div>
+      <div class="stage"><div class="stage-header">Negociação</div><div class="stage-count">2</div></div>
+      <div class="stage"><div class="stage-header">Fechado</div><div class="stage-count">4</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3>Follow-ups pendentes hoje</h3><span class="badge badge-red">5 pendentes</span></div>
+      <table><thead><tr><th>Lead</th><th>Etapa</th><th>Último contato</th><th>Ação</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Academia FitLife</strong></td><td><span class="badge badge-amber">Diagnóstico</span></td><td>3 dias</td><td style="font-size:12px;">Enviar proposta recorrente</td></tr>
+        <tr><td><strong>Loja ModaUp</strong></td><td><span class="badge badge-blue">Proposta</span></td><td>2 dias</td><td style="font-size:12px;">Ligar para confirmar leitura</td></tr>
+        <tr><td><strong>Dr. Marcos Saúde</strong></td><td><span class="badge badge-gray">Qualificação</span></td><td>5 dias</td><td style="font-size:12px;">WhatsApp de retomada</td></tr>
+        <tr><td><strong>Construtora Alpha</strong></td><td><span class="badge badge-amber">Diagnóstico</span></td><td>1 dia</td><td style="font-size:12px;">Aguardar resposta</td></tr>
+        <tr><td><strong>Pet Shop Fofinho</strong></td><td><span class="badge badge-gray">Prospecção</span></td><td>7 dias</td><td style="font-size:12px;">Último contato ou arquivar</td></tr>
+      </tbody></table>
+    </div>
+  </div>
+
+  <!-- PIPELINE -->
+  <div class="section" id="pipeline">
+    <h1>Pipeline de Vendas</h1>
+    <p class="subtitle">Funil completo com ações, critérios de avanço e erros a evitar</p>
+
+    <div class="card">
+      <div class="card-header"><h3>Etapa 1 — Prospecção</h3><span class="badge badge-gray">SDR</span></div>
+      <div class="grid-3" style="margin-bottom:8px;">
+        <div><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px;">O QUE ACONTECE</div><div style="font-size:13px;">Lead identificado por Instagram, indicação, evento ou ativo. Ainda não foi contactado ou houve contato inicial sem resposta.</div></div>
+        <div><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px;">QUANDO AVANÇA</div><div style="font-size:13px;">Lead respondeu ao primeiro contato e demonstrou algum interesse. Mesmo que só diga "me manda informações".</div></div>
+        <div><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px;">O QUE FAZER</div><div style="font-size:13px;">Enviar mensagem de abertura personalizada (não genérica). Referenciar algo específico do negócio do lead.</div></div>
+      </div>
+      <div class="warn-box"><strong>Erro comum:</strong> mandar áudio longo no primeiro contato ou copiar e colar o mesmo texto para todos os leads.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3>Etapa 2 — Qualificação</h3><span class="badge badge-gray">SDR</span></div>
+      <div class="grid-3" style="margin-bottom:8px;">
+        <div><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px;">O QUE ACONTECE</div><div style="font-size:13px;">SDR faz perguntas para entender: tem verba, tem dor, tem decisão? Preenche campos do banco de leads.</div></div>
+        <div><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px;">QUANDO AVANÇA</div><div style="font-size:13px;">Lead confirmou: tem orçamento disponível (mesmo que não saiba o valor exato) + tem dor clara + é o decisor.</div></div>
+        <div><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px;">O QUE FAZER</div><div style="font-size:13px;">Perguntas SPIN adaptadas. Identificar se é pontual ou tem potencial recorrente. Classificar o lead.</div></div>
+      </div>
+      <div class="warn-box"><strong>Erro comum:</strong> passar lead mal qualificado para o closer. Desperdiça tempo dos dois lados.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3>Etapa 3 — Diagnóstico / Reunião</h3><span class="badge badge-blue">Closer</span></div>
+      <div class="grid-3" style="margin-bottom:8px;">
+        <div><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px;">O QUE ACONTECE</div><div style="font-size:13px;">Reunião de diagnóstico (vídeo ou visita). Closer entende profundo: objetivos, concorrência, presença digital, histórico.</div></div>
+        <div><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px;">QUANDO AVANÇA</div><div style="font-size:13px;">Closer identificou o problema principal, mapeou a solução ideal e lead sinalizou abertura para proposta.</div></div>
+        <div><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px;">O QUE FAZER</div><div style="font-size:13px;">Escutar mais do que falar. Fazer a pergunta de recorrência: "Você precisa disso uma vez ou precisa de consistência?"</div></div>
+      </div>
+      <div class="tip-box"><strong>Diferencial:</strong> nessa etapa, já plante a semente da recorrência para leads pontuais. Mostre o risco de fazer uma vez só.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3>Etapa 4 — Proposta</h3><span class="badge badge-blue">Closer</span></div>
+      <div class="grid-3" style="margin-bottom:8px;">
+        <div><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px;">O QUE ACONTECE</div><div style="font-size:13px;">Proposta enviada. Deve conter: problema identificado, solução proposta, entregas, prazo e investimento. Sempre com opção recorrente.</div></div>
+        <div><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px;">QUANDO AVANÇA</div><div style="font-size:13px;">Lead leu a proposta e fez perguntas, ou solicitou ajuste de escopo. Sinal de interesse real.</div></div>
+        <div><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px;">O QUE FAZER</div><div style="font-size:13px;">Enviar proposta e marcar follow-up em 24h. Nunca enviar e esperar. Ligar no dia seguinte.</div></div>
+      </div>
+      <div class="warn-box"><strong>Erro comum:</strong> enviar proposta só com opção pontual. Sempre inclua a versão recorrente com desconto.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3>Etapa 5 — Negociação</h3><span class="badge badge-purple">Closer</span></div>
+      <div class="grid-3" style="margin-bottom:8px;">
+        <div><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px;">O QUE ACONTECE</div><div style="font-size:13px;">Lead tem objeções: preço, prazo, escopo, decisão. Closer trabalha cada objeção com evidências e cases reais.</div></div>
+        <div><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px;">QUANDO AVANÇA</div><div style="font-size:13px;">Acordo verbal ou confirmação de que vai fechar. Alinhamento de forma de pagamento e próximos passos.</div></div>
+        <div><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px;">O QUE FAZER</div><div style="font-size:13px;">Não dar desconto sem contrapartida. Desconto? Então reduz escopo ou fecha contrato mais longo.</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3>Etapa 6 — Fechado / Onboarding</h3><span class="badge badge-green">Time</span></div>
+      <div class="grid-3" style="margin-bottom:8px;">
+        <div><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px;">O QUE ACONTECE</div><div style="font-size:13px;">Contrato assinado ou acordo confirmado. Cliente passa para banco de clientes. Grupo no WhatsApp criado em 24h.</div></div>
+        <div><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px;">QUANDO AVANÇA</div><div style="font-size:13px;">Pagamento confirmado + reunião de onboarding agendada.</div></div>
+        <div><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px;">O QUE FAZER</div><div style="font-size:13px;">Celebrar internamente. Enviar mensagem de boas-vindas caprichada. Agendar kick-off em até 5 dias.</div></div>
+      </div>
+    </div>
+
+    <hr class="divider">
+    <h2>Diferenciação: Pontual vs Recorrente</h2>
+    <div class="grid-2">
+      <div class="card" style="border-left: 3px solid #185FA5;">
+        <div class="card-header"><h3>Lead Pontual</h3><span class="badge badge-blue">Evento / Foto / Edição</span></div>
+        <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
+          Ciclo curto. Decisão rápida. Proposta objetiva com prazo definido.<br><br>
+          <strong>Estratégia:</strong> fechar rápido e já plantar a pergunta: "Você faz isso regularmente ou é pontual?" — abre porta pra recorrência no pós-venda.
+        </div>
+      </div>
+      <div class="card" style="border-left: 3px solid #0F6E56;">
+        <div class="card-header"><h3>Lead com Potencial Recorrente</h3><span class="badge badge-teal">Contratos</span></div>
+        <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">
+          Ciclo maior. Mais reuniões. Decisão envolve mais pessoas.<br><br>
+          <strong>Estratégia:</strong> não falar de preço antes do diagnóstico. Construir o valor do contrato antes da proposta. Mostrar ROI de consistência de conteúdo.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BANCO DE LEADS -->
+  <div class="section" id="leads-db">
+    <h1>Banco de Dados de Leads</h1>
+    <p class="subtitle">Campos obrigatórios e sistema de tags — estrutura para o banco de dados no Notion</p>
+
+    <h2>Campos obrigatórios</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Campo</th><th>Tipo</th><th>Valores / Exemplo</th><th>Obrigatório</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Nome da empresa</strong></td><td>Texto</td><td>Restaurante Dom</td><td><span class="badge badge-red">Sim</span></td></tr>
+          <tr><td><strong>Nome do contato</strong></td><td>Texto</td><td>Carlos Moreira</td><td><span class="badge badge-red">Sim</span></td></tr>
+          <tr><td><strong>WhatsApp</strong></td><td>Telefone</td><td>(34) 9xxxx-xxxx</td><td><span class="badge badge-red">Sim</span></td></tr>
+          <tr><td><strong>Instagram / Site</strong></td><td>URL</td><td>@restaurantedom</td><td><span class="badge badge-amber">Recomendado</span></td></tr>
+          <tr><td><strong>Segmento</strong></td><td>Select</td><td>Gastronomia / Saúde / Moda / Imob / Educação / Outro</td><td><span class="badge badge-red">Sim</span></td></tr>
+          <tr><td><strong>Serviço de interesse</strong></td><td>Multi-select</td><td>Mobile Pro / Edição / Evento / Foto / Roteiro / Publicidade / Visita Técnica</td><td><span class="badge badge-red">Sim</span></td></tr>
+          <tr><td><strong>Etapa do pipeline</strong></td><td>Select</td><td>Prospecção → Fechado</td><td><span class="badge badge-red">Sim</span></td></tr>
+          <tr><td><strong>Temperatura</strong></td><td>Select</td><td>🔥 Quente / 🌤 Morno / 🧊 Frio</td><td><span class="badge badge-red">Sim</span></td></tr>
+          <tr><td><strong>Tipo de lead</strong></td><td>Select</td><td>Pontual / Potencial Recorrente / Recorrente Confirmado</td><td><span class="badge badge-red">Sim</span></td></tr>
+          <tr><td><strong>Origem</strong></td><td>Select</td><td>Instagram / Indicação / WhatsApp / Google / Evento / Prospecção ativa</td><td><span class="badge badge-red">Sim</span></td></tr>
+          <tr><td><strong>Responsável</strong></td><td>Person</td><td>SDR: João / Closer: Ana</td><td><span class="badge badge-red">Sim</span></td></tr>
+          <tr><td><strong>Data do primeiro contato</strong></td><td>Data</td><td>12/03/2025</td><td><span class="badge badge-red">Sim</span></td></tr>
+          <tr><td><strong>Último contato</strong></td><td>Data</td><td>Auto-atualizar após cada ação</td><td><span class="badge badge-red">Sim</span></td></tr>
+          <tr><td><strong>Próxima ação</strong></td><td>Data + Texto</td><td>15/03 — Ligar para confirmar proposta</td><td><span class="badge badge-red">Sim</span></td></tr>
+          <tr><td><strong>Valor estimado</strong></td><td>Número</td><td>R$ 2.400</td><td><span class="badge badge-amber">Recomendado</span></td></tr>
+          <tr><td><strong>Potencial recorrência</strong></td><td>Select</td><td>Alto / Médio / Baixo / Nenhum</td><td><span class="badge badge-red">Sim</span></td></tr>
+          <tr><td><strong>Histórico de contatos</strong></td><td>Texto longo</td><td>Log cronológico de tudo que foi dito/feito</td><td><span class="badge badge-red">Sim</span></td></tr>
+          <tr><td><strong>Objeção principal</strong></td><td>Texto</td><td>"Está caro" / "Vou pensar" / "Não é o momento"</td><td><span class="badge badge-amber">Recomendado</span></td></tr>
+          <tr><td><strong>Status</strong></td><td>Select</td><td>Ativo / Pausado / Perdido / Ganho</td><td><span class="badge badge-red">Sim</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Sistema de Tags inteligentes</h2>
+    <div class="card">
+      <h3 style="margin-bottom:10px;">Tags de perfil</h3>
+      <div>
+        <span class="tag">🍽 gastronomia</span><span class="tag">🏋 fitness</span><span class="tag">🏠 imobiliária</span><span class="tag">💊 saúde</span><span class="tag">📚 educação</span><span class="tag">👗 moda</span><span class="tag">🏗 construção</span><span class="tag">⚖ jurídico</span><span class="tag">🐾 pet</span><span class="tag">🎵 entretenimento</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="margin-bottom:10px;">Tags de comportamento</h3>
+      <div>
+        <span class="tag">decisor confirmado</span><span class="tag">precisa de aprovação</span><span class="tag">respondeu rápido</span><span class="tag">sumiu</span><span class="tag">pediu proposta</span><span class="tag">comparando concorrentes</span><span class="tag">sem verba agora</span><span class="tag">indicou alguém</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="margin-bottom:10px;">Tags de oportunidade</h3>
+      <div>
+        <span class="tag">🔄 alto potencial recorrente</span><span class="tag">💰 ticket alto</span><span class="tag">🚀 urgente</span><span class="tag">📌 retomar em 30d</span><span class="tag">🎯 upsell possível</span><span class="tag">🤝 parceria potencial</span><span class="tag">⭐ cliente âncora</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLAYBOOK -->
+  <div class="section" id="playbook">
+    <h1>Playbook de Vendas</h1>
+    <p class="subtitle">Scripts prontos, diretos e naturais — copie, adapte e feche</p>
+
+    <div class="card">
+      <h2>Script 1 — Primeiro contato (WhatsApp)</h2>
+      <div class="script-label">Mensagem de abertura — lead frio, prospecção ativa</div>
+      <div class="script-box">
+        Oi [Nome], tudo bem? Vi o perfil do [negócio] no Instagram e fiquei curioso sobre como vocês estão usando conteúdo pra atrair clientes hoje.<br><br>
+        A gente trabalha com produção audiovisual estratégica — não só vídeo, mas posicionamento. Tem alguns resultados que acho que fariam sentido pro seu segmento.<br><br>
+        Você é quem cuida do marketing ou tem outra pessoa?
+      </div>
+      <div class="script-label">Mensagem de reabertura — lead que indicou interesse antes</div>
+      <div class="script-box">
+        Oi [Nome]! Estávamos conversando sobre conteúdo pra [negócio] há um tempo e queria retomar.<br><br>
+        Mudou alguma coisa no plano de vocês para esse semestre? A gente fechou alguns projetos bacanas na área de [segmento] e acho que pode ser interessante pra você ver.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Script 2 — Diagnóstico</h2>
+      <div class="script-label">Perguntas de diagnóstico (reunião)</div>
+      <div class="script-box">
+        1. "Me conta: como vocês estão gerando novos clientes hoje? O que tá funcionando melhor?"<br><br>
+        2. "Vocês já investiram em produção de conteúdo antes? O que aconteceu?"<br><br>
+        3. "Se você olha pro Instagram/YouTube/LinkedIn de vocês hoje, o que te incomoda?"<br><br>
+        4. "Qual é a meta de vocês para os próximos 6 meses? Mais clientes, mais autoridade, expansão?"<br><br>
+        5. "E se vocês tivessem conteúdo consistente e profissional saindo toda semana — o que isso mudaria no negócio de vocês?"
+      </div>
+      <div class="tip-box"><strong>Regra de ouro:</strong> escute o dobro do que fala. Anote tudo. Use as palavras do cliente na proposta.</div>
+    </div>
+
+    <div class="card">
+      <h2>Script 3 — Conversão para recorrência</h2>
+      <div class="script-label">Quando o lead quer fechar pontual mas tem potencial recorrente</div>
+      <div class="script-box">
+        "Faz sentido a gente fazer esse primeiro projeto. Mas deixa eu te perguntar uma coisa: você precisa disso uma vez, ou você precisa que os seus clientes vejam você toda semana?<br><br>
+        Porque o que a gente vê é: a empresa que posta uma vez tem um pico e some. A que aparece toda semana vira referência. E referência cobra mais caro e não precisa disputar preço.<br><br>
+        A gente tem um formato de contrato mensal que resolve isso. Posso mostrar como funciona?"
+      </div>
+      <div class="script-label">Quando o cliente pergunta "e se eu fechar mensal, tem desconto?"</div>
+      <div class="script-box">
+        "Sim, no mensal você ganha em dois sentidos: o valor por entrega cai porque a gente planeja tudo junto, e você garante prioridade de agenda — que em alta temporada faz diferença.
+        Posso montar as duas opções lado a lado pra você comparar?"
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Script 4 — Fechamento</h2>
+      <div class="script-label">Após proposta enviada e follow-up feito</div>
+      <div class="script-box">
+        "Vi que você recebeu a proposta. O que achou? Teve algum ponto que ficou dúvida?"<br><br>
+        [Escuta objeção]<br><br>
+        "Entendo. Deixa eu ser direto: o que falta pra a gente avançar? É o valor, é o escopo, é o prazo de início ou tem outra coisa?"
+      </div>
+      <div class="script-label">Fechamento direto quando lead está quente</div>
+      <div class="script-box">
+        "Você já falou que quer melhorar o conteúdo de vocês. A gente tem a solução certa pra isso. O próximo passo é simples: eu mando o contrato hoje, você revisa, a gente acerta pagamento e na semana que vem a gente já começa. Fecha assim?"
+      </div>
+      <div class="warn-box"><strong>Nunca:</strong> "Fica à vontade pra pensar" sem estabelecer um prazo. Sempre combine quando volta a falar.</div>
+    </div>
+  </div>
+
+  <!-- FOLLOW-UP -->
+  <div class="section" id="followup">
+    <h1>Sistema de Follow-up</h1>
+    <p class="subtitle">Fluxo completo com intervalos, tentativas e mensagens prontas por temperatura</p>
+
+    <div class="follow-cols">
+      <div class="follow-card" style="border-top: 3px solid #E24B4A;">
+        <div class="follow-header" style="color: #791F1F;">🔥 Lead Quente</div>
+        <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px;">Respondeu, tem interesse claro, aguardando proposta ou decisão.</div>
+        <div class="msg"><div class="msg-day">Dia 1 — após reunião</div>"[Nome], foi ótimo conversar! Conforme combinamos, vou mandar a proposta ainda hoje. Qualquer dúvida, estou aqui."</div>
+        <div class="msg"><div class="msg-day">Dia 2 — após proposta</div>"[Nome], tudo bem? Você teve chance de ver a proposta? Quero saber se ficou alguma dúvida antes da gente avançar."</div>
+        <div class="msg"><div class="msg-day">Dia 4 — sem resposta</div>"[Nome], só passando pra confirmar se chegou certinho. Posso ligar 15 minutos hoje ou amanhã pra a gente alinhar os últimos pontos?"</div>
+        <div class="msg"><div class="msg-day">Dia 7 — decisão final</div>"[Nome], vi que você está avaliando. Só quero entender: tem alguma barreira que posso ajudar a resolver? Se precisar ajustar algo na proposta, me fala agora que vejo o que dá."</div>
+        <div class="tip-box" style="margin-top:8px;">4 tentativas. Se não fechar em 10 dias → mover para Morno.</div>
+      </div>
+
+      <div class="follow-card" style="border-top: 3px solid #BA7517;">
+        <div class="follow-header" style="color: #633806;">🌤 Lead Morno</div>
+        <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px;">Demonstrou interesse mas sumiu, ou disse "vou pensar" sem prazo.</div>
+        <div class="msg"><div class="msg-day">Semana 1</div>"[Nome], tudo bem? Só retomando nossa conversa sobre conteúdo pra [negócio]. Vocês ainda estão pensando em investir nessa frente?"</div>
+        <div class="msg"><div class="msg-day">Semana 2</div>"[Nome], vi que publicou um post ontem. Interessante! Justamente por isso queria retomar: a gente pode transformar isso numa estratégia consistente. Vale 10 minutos de conversa?"</div>
+        <div class="msg"><div class="msg-day">Semana 4</div>"[Nome], tenho um case novo do segmento de [segmento] que acho que vai fazer sentido pra você ver. Posso mandar?"</div>
+        <div class="tip-box" style="margin-top:8px;">3 tentativas em 30 dias. Se não responder → Frio ou arquivar.</div>
+      </div>
+
+      <div class="follow-card" style="border-top: 3px solid #378ADD;">
+        <div class="follow-header" style="color: #042C53;">🧊 Lead Frio</div>
+        <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px;">Não respondeu, disse não é o momento, ou sumiu após qualificação.</div>
+        <div class="msg"><div class="msg-day">Mês 2</div>"[Nome], boa tarde! Faz um tempo que não falamos. Passando pra ver se mudou alguma coisa no plano de vocês. A gente lançou um serviço novo de [serviço relevante] que pode encaixar bem pro [negócio]."</div>
+        <div class="msg"><div class="msg-day">Mês 4</div>"[Nome], vi que vocês estão crescendo! Parabéns. A gente pode ajudar a transformar esse crescimento em autoridade digital. Quando der, bora conversar 15 minutos?"</div>
+        <div class="warn-box" style="margin-top:8px;"><strong>2 tentativas máximo.</strong> Se não respondeu em 4 meses → arquivar ou nutrir com conteúdo.</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:1rem;">
+      <h3>Regras do follow-up</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:10px;">
+        <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Varie o canal</div><div class="step-desc">WhatsApp → ligação → e-mail. Nunca só WhatsApp.</div></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Nunca "sumiu?"</div><div class="step-desc">Sempre traga valor ou contexto novo na mensagem.</div></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Personalize sempre</div><div class="step-desc">Referencie algo do negócio, post ou momento do lead.</div></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Defina deadline interno</div><div class="step-desc">Se não respondeu em X dias, muda de etapa. Não deixa apodrecer.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLIENTES ATIVOS -->
+  <div class="section" id="clientes">
+    <h1>Banco de Clientes — Pós-Venda</h1>
+    <p class="subtitle">Gestão de contratos, entregas, saúde do cliente e oportunidades</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Campo</th><th>Tipo</th><th>Valores</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Nome do cliente</strong></td><td>Texto</td><td>Academia FitLife</td></tr>
+          <tr><td><strong>Tipo de contrato</strong></td><td>Select</td><td>Recorrente mensal / Pacote pontual / Projeto</td></tr>
+          <tr><td><strong>Serviços contratados</strong></td><td>Multi-select</td><td>Mobile Pro / Edição / Fotos / Evento</td></tr>
+          <tr><td><strong>Valor mensal / total</strong></td><td>Número</td><td>R$ 3.200/mês</td></tr>
+          <tr><td><strong>Data de início</strong></td><td>Data</td><td>01/02/2025</td></tr>
+          <tr><td><strong>Data de renovação</strong></td><td>Data</td><td>01/08/2025 — lembrete 30 dias antes</td></tr>
+          <tr><td><strong>Frequência de entrega</strong></td><td>Select</td><td>Semanal / Quinzenal / Mensal / Sob demanda</td></tr>
+          <tr><td><strong>Status do cliente</strong></td><td>Select</td><td>🟢 Saudável / 🟡 Atenção / 🔴 Risco de churn</td></tr>
+          <tr><td><strong>NPS / Satisfação</strong></td><td>Select</td><td>Promotor / Neutro / Detrator</td></tr>
+          <tr><td><strong>Responsável CS</strong></td><td>Person</td><td>Ana Lima</td></tr>
+          <tr><td><strong>Próximo check-in</strong></td><td>Data</td><td>20/03/2025</td></tr>
+          <tr><td><strong>Próxima oportunidade de venda</strong></td><td>Texto</td><td>"Evento em maio — oferecer cobertura fotográfica"</td></tr>
+          <tr><td><strong>Serviços não contratados</strong></td><td>Multi-select</td><td>Lista dos serviços que o cliente ainda não usa</td></tr>
+          <tr><td><strong>Indicações feitas</strong></td><td>Número</td><td>2 indicações ativas</td></tr>
+          <tr><td><strong>Histórico de interações</strong></td><td>Texto longo</td><td>Log cronológico de reuniões, feedbacks e entregas</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Semáforo de saúde do cliente</h3>
+      <div class="grid-3" style="margin-top:10px;">
+        <div style="background:#EAF3DE;border-radius:var(--border-radius-md);padding:12px;"><div style="font-size:13px;font-weight:500;color:#27500A;margin-bottom:6px;">🟢 Saudável</div><div style="font-size:12px;color:#3B6D11;">Entrega em dia, cliente responde, usou o produto, deu feedback positivo recente.</div></div>
+        <div style="background:#FAEEDA;border-radius:var(--border-radius-md);padding:12px;"><div style="font-size:13px;font-weight:500;color:#633806;margin-bottom:6px;">🟡 Atenção</div><div style="font-size:12px;color:#854F0B;">Demorou pra responder, reclamou de entrega, não usou o material, sem feedback em 30d.</div></div>
+        <div style="background:#FCEBEB;border-radius:var(--border-radius-md);padding:12px;"><div style="font-size:13px;font-weight:500;color:#791F1F;margin-bottom:6px;">🔴 Risco</div><div style="font-size:12px;color:#A32D2D;">Pediu pausa, não publicou nada, reclamou de valor, não abriu contato em 2+ semanas.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCALA -->
+  <div class="section" id="escala">
+    <h1>Sistema de Escala de Cliente</h1>
+    <p class="subtitle">Transformar pontual em recorrente, upsell e geração de indicações</p>
+
+    <h2>Jornada de upgrade</h2>
+    <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Entrega impecável no primeiro projeto</div><div class="step-desc">A melhor venda do contrato é a qualidade da entrega. Cliente satisfeito vira recorrente naturalmente.</div></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Pergunta de expansão no pós-entrega</div><div class="step-desc">"Ficou bem? Imagina ter isso todo mês, com planejamento de conteúdo. Quer ver como funciona?"</div></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Mostrar o que eles estão perdendo</div><div class="step-desc">Mostrar os resultados de um cliente recorrente vs pontual. Comparação real de alcance e consistência.</div></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Oferta de contrato de entrada</div><div class="step-desc">Não precisa ser o contrato completo. Um Mobile Pro mensal cabe em qualquer orçamento e cria o hábito.</div></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-content"><div class="step-title">Expansão de escopo gradual</div><div class="step-desc">Após 60-90 dias de recorrência, apresentar upgrade para vídeo publicitário ou fotografia estratégica.</div></div></div>
+
+    <hr class="divider">
+
+    <div class="upsell-grid">
+      <div class="card">
+        <h3 style="margin-bottom:10px;">Matriz de upsell por serviço</h3>
+        <table><thead><tr><th>Serviço atual</th><th>Próximo passo natural</th></tr></thead>
+        <tbody>
+          <tr><td>Mobile Pro</td><td>Vídeo publicitário / Roteiro estratégico</td></tr>
+          <tr><td>Edição sob demanda</td><td>Contrato de edição mensal</td></tr>
+          <tr><td>Cobertura de evento</td><td>Contrato de fotos + vídeo mensal</td></tr>
+          <tr><td>Fotografia</td><td>Mobile Pro + roteiro de conteúdo</td></tr>
+          <tr><td>Roteiro</td><td>Produção completa do vídeo</td></tr>
+        </tbody></table>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:10px;">Sistema de indicações</h3>
+        <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Peça sempre no momento certo</div><div class="step-desc">Após entrega positiva, não depois de um mês. "Conhece alguém que precisa disso?"</div></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Incentive com valor real</div><div class="step-desc">1 mês de desconto para quem indica + bônus de entrega para o indicado.</div></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Registre e acompanhe</div><div class="step-desc">Campo "indicações feitas" no banco de clientes. Cliente que indica merece atenção extra.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="section" id="kpis">
+    <h1>KPIs e Controle</h1>
+    <p class="subtitle">Indicadores semanais e mensais — acompanhar toda segunda-feira</p>
+
+    <h2>Indicadores de vendas</h2>
+    <div class="kpi-row">
+      <div class="kpi-card"><div class="kpi-name">Taxa de conversão geral</div><div class="kpi-val">28%</div><div class="kpi-target">Meta: 30% | Leads fechados / leads qualificados</div></div>
+      <div class="kpi-card"><div class="kpi-name">Ticket médio pontual</div><div class="kpi-val">R$ 900</div><div class="kpi-target">Meta: R$ 1.200 | Fotos, edição, evento</div></div>
+      <div class="kpi-card"><div class="kpi-name">Ticket médio recorrente</div><div class="kpi-val">R$ 3.200</div><div class="kpi-target">Meta: R$ 3.800 | Contratos mensais</div></div>
+      <div class="kpi-card"><div class="kpi-name">Ciclo médio de vendas</div><div class="kpi-val">11 dias</div><div class="kpi-target">Meta: ≤ 10 dias | Primeiro contato → fechamento</div></div>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi-card"><div class="kpi-name">Taxa de upgrade para recorrente</div><div class="kpi-val">22%</div><div class="kpi-target">Meta: 40% | Clientes pontuais → contratos</div></div>
+      <div class="kpi-card"><div class="kpi-name">Churn mensal</div><div class="kpi-val">8%</div><div class="kpi-target">Meta: ≤ 5% | Contratos cancelados/mês</div></div>
+      <div class="kpi-card"><div class="kpi-name">MRR (receita recorrente)</div><div class="kpi-val">R$ 22.4k</div><div class="kpi-target">Meta: R$ 32k | Soma de todos os contratos ativos</div></div>
+      <div class="kpi-card"><div class="kpi-name">Leads gerados/mês</div><div class="kpi-val">38</div><div class="kpi-target">Meta: 50/mês | Todas as origens</div></div>
+    </div>
+
+    <hr class="divider">
+
+    <h2>Conversão por etapa do funil</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Etapa</th><th>Entrada</th><th>Avanço</th><th>Conversão</th><th>Meta</th></tr></thead>
+        <tbody>
+          <tr><td>Prospecção → Qualificação</td><td>100%</td><td>40%</td><td>40%</td><td>50%</td></tr>
+          <tr><td>Qualificação → Diagnóstico</td><td>40%</td><td>70%</td><td>28%</td><td>75%</td></tr>
+          <tr><td>Diagnóstico → Proposta</td><td>28%</td><td>80%</td><td>22.4%</td><td>85%</td></tr>
+          <tr><td>Proposta → Fechamento</td><td>22.4%</td><td>55%</td><td>12.3%</td><td>65%</td></tr>
+          <tr><td>Pontual → Recorrente</td><td>—</td><td>22%</td><td>—</td><td>40%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Automações simples recomendadas</h3>
+      <div class="grid-2" style="margin-top:10px;">
+        <div class="step"><div class="step-num">A</div><div class="step-content"><div class="step-title">Notion + Make/Zapier</div><div class="step-desc">Quando etapa muda para "Proposta" → criar tarefa de follow-up em 24h automaticamente.</div></div></div>
+        <div class="step"><div class="step-num">B</div><div class="step-content"><div class="step-title">Lembrete de renovação</div><div class="step-desc">30 dias antes da data de renovação → notificação para responsável CS agendar reunião.</div></div></div>
+        <div class="step"><div class="step-num">C</div><div class="step-content"><div class="step-title">Lead sem contato há 3 dias</div><div class="step-desc">Alerta automático para SDR quando lead ativo não tem interação registrada em 3 dias úteis.</div></div></div>
+        <div class="step"><div class="step-num">D</div><div class="step-content"><div class="step-title">Cliente em risco</div><div class="step-desc">Quando status muda para "Risco" → notificação imediata para gestor comercial.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTION -->
+  <div class="section" id="notion">
+    <h1>Estrutura Notion</h1>
+    <p class="subtitle">Hierarquia de páginas e como o time usa no dia a dia</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3 style="margin-bottom:12px;">Estrutura de páginas</h3>
+        <div class="notion-page"><span class="notion-icon">🏠</span><strong>HOME — Dashboard Comercial</strong></div>
+        <div class="notion-children">
+          <div class="notion-page"><span class="notion-icon">📊</span>Visão geral + KPIs da semana</div>
+          <div class="notion-page"><span class="notion-icon">⚡</span>Follow-ups do dia</div>
+          <div class="notion-page"><span class="notion-icon">🏆</span>Fechamentos do mês</div>
+        </div>
+
+        <div class="notion-page" style="margin-top:8px;"><span class="notion-icon">🎯</span><strong>Pipeline de Vendas</strong></div>
+        <div class="notion-children">
+          <div class="notion-page"><span class="notion-icon">📋</span>Banco de Leads (view Kanban)</div>
+          <div class="notion-page"><span class="notion-icon">🔥</span>Leads Quentes (view filtrada)</div>
+          <div class="notion-page"><span class="notion-icon">📅</span>Follow-ups pendentes (view)</div>
+        </div>
+
+        <div class="notion-page" style="margin-top:8px;"><span class="notion-icon">👥</span><strong>Clientes Ativos</strong></div>
+        <div class="notion-children">
+          <div class="notion-page"><span class="notion-icon">🟢</span>Saudáveis</div>
+          <div class="notion-page"><span class="notion-icon">🟡</span>Atenção</div>
+          <div class="notion-page"><span class="notion-icon">🔴</span>Risco de churn</div>
+          <div class="notion-page"><span class="notion-icon">🚀</span>Oportunidades de upsell</div>
+        </div>
+
+        <div class="notion-page" style="margin-top:8px;"><span class="notion-icon">📖</span><strong>Playbook e Scripts</strong></div>
+        <div class="notion-children">
+          <div class="notion-page"><span class="notion-icon">💬</span>Scripts por etapa</div>
+          <div class="notion-page"><span class="notion-icon">❌</span>Objeções e respostas</div>
+          <div class="notion-page"><span class="notion-icon">📁</span>Cases e provas sociais</div>
+        </div>
+
+        <div class="notion-page" style="margin-top:8px;"><span class="notion-icon">📈</span><strong>KPIs e Relatórios</strong></div>
+        <div class="notion-children">
+          <div class="notion-page"><span class="notion-icon">📅</span>Relatório semanal</div>
+          <div class="notion-page"><span class="notion-icon">📆</span>Relatório mensal</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom:12px;">Rotina do time por função</h3>
+
+        <div style="margin-bottom:14px;">
+          <div class="badge badge-blue" style="margin-bottom:8px;">SDR — Diário</div>
+          <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Abrir Dashboard → ver follow-ups do dia</div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Atualizar histórico de contato após cada interação</div></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Mover leads entre etapas em tempo real</div></div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Preencher "próxima ação" antes de fechar o dia</div></div></div>
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <div class="badge badge-purple" style="margin-bottom:8px;">Closer — Diário</div>
+          <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Ver leads qualificados aguardando diagnóstico</div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Registrar resultado de cada reunião</div></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Atualizar proposta e próximo follow-up</div></div></div>
+        </div>
+
+        <div>
+          <div class="badge badge-green" style="margin-bottom:8px;">Gestor — Semanal (segunda)</div>
+          <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Revisar KPIs vs metas na página de relatório</div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Identificar leads travados e acionar time</div></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Verificar clientes em risco e planejar ação</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:10px;">Regras de uso do sistema</h3>
+      <div class="grid-2">
+        <div>
+          <div class="warn-box"><strong>Proibido:</strong> Deixar lead sem "próxima ação" preenchida. Se não sabe o que fazer, é porque não foi qualificado direito.</div>
+          <div class="warn-box"><strong>Proibido:</strong> Não atualizar o histórico. Se não tá no sistema, não aconteceu.</div>
+        </div>
+        <div>
+          <div class="tip-box"><strong>Obrigatório:</strong> Todo lead que avança de etapa tem data + descrição no histórico.</div>
+          <div class="tip-box"><strong>Obrigatório:</strong> Campo "próxima oportunidade de venda" atualizado em todo cliente ativo mensalmente.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const sections = ['dashboard','pipeline','leads-db','playbook','followup','clientes','escala','kpis','notion'];
+  const idx = sections.indexOf(id);
+  document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+}
+</script>
